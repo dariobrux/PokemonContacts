@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.dariobrux.pokemon.app.R
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.extensions.getIdFromUrl
@@ -70,7 +69,7 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
         // because, when I change the theme, the application is refreshed, and
         // I could incur in any bug.
         if (viewModel.pokemonList.isEmpty()) {
-            getPokemonList()
+            getPokemonAndContactList()
         }
 
         // Observe the sort mode to refresh the list and the sort button.
@@ -141,8 +140,8 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
     /**
      * Observe the ViewModel to get the list of the pokemon to show.
      */
-    private fun getPokemonList() {
-        viewModel.getPokemon()?.observe(this.viewLifecycleOwner) {
+    private fun getPokemonAndContactList() {
+        viewModel.getPokemonAndContactList()?.observe(this.viewLifecycleOwner) {
             Timber.d("Observer the dataInfo object. It contains ${it.data?.pokemonList?.size ?: 0} pokemon")
             viewModel.pokemonList.addAll(it.data?.pokemonList ?: emptyList())
 
@@ -212,6 +211,6 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
      * It invoke the viewModel to retrieve other pokemon.
      */
     override fun onLoadMore() {
-        getPokemonList()
+        getPokemonAndContactList()
     }
 }

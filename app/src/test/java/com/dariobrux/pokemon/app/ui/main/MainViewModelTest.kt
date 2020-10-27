@@ -32,13 +32,13 @@ class MainViewModelTest : TestCase() {
     @Test
     fun testGetExistingData() {
         Mockito.`when`(repository.getPokemon()).thenReturn(MutableLiveData())
-        assertTrue(viewModel.getPokemon() != null)
+        assertTrue(viewModel.getPokemonAndContactList() != null)
     }
 
     @Test
     fun testGetNotExistingData() {
         Mockito.`when`(repository.getPokemon()).thenReturn(null)
-        assertTrue(viewModel.getPokemon() == null)
+        assertTrue(viewModel.getPokemonAndContactList() == null)
     }
 
     @Test

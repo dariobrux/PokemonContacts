@@ -24,7 +24,7 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
     /**
      * @return the pokemon list.
      */
-    fun getPokemon(): LiveData<Resource<DataInfo>>? {
+    fun getPokemonAndContactList(): LiveData<Resource<DataInfo>>? {
         return mainRepository.getPokemon()
     }
 
@@ -33,7 +33,7 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      */
     fun refreshPokemon(): LiveData<Resource<DataInfo>>? {
         resetOffset()
-        return getPokemon()
+        return getPokemonAndContactList()
     }
 
     fun resetOffset() {

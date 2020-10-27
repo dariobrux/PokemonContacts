@@ -3,6 +3,8 @@
     package="com.dariobrux.pokemon.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <application
         android:name="com.dariobrux.pokemon.app.PokemonApplication"

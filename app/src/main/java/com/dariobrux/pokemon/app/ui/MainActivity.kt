@@ -1,10 +1,16 @@
 package com.dariobrux.pokemon.app.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.Preferences
 import androidx.lifecycle.MutableLiveData
@@ -50,6 +56,25 @@ class MainActivity : AppCompatActivity() {
      */
     @Inject
     lateinit var sorting: MutableLiveData<Sorting>
+
+    /**
+     * Register the permissions callback, which handles the user's response to the
+     * system permissions dialog. Save the return value, an instance of
+     * ActivityResultLauncher. You can use either a val, as shown in this snippet,
+     * or a lateinit var in your onAttach() or onCreate() method.
+     */
+    val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission is granted. Continue the action or workflow in your
+            // app.
+        } else {
+            // Explain to the user that the feature is unavailable because the
+            // features requires a permission that the user has denied. At the
+            // same time, respect the user's decision. Don't link to system
+            // settings in an effort to convince the user to change their
+            // decision.
+        }
+    }
 
     /**
      * Current theme
@@ -101,9 +126,30 @@ class MainActivity : AppCompatActivity() {
         NUM
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+
+        // Check contacts permission
+        when {
+            ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected. In this UI,
+                // include a "cancel" or "no thanks" button that allows the user to
+                // continue using your app without granting the permission.
+//                showInContextUI(...)
+            }
+            else -> {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+//                requestPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_CODE)
+            }
+        }
 
         // Check what is the current theme
         readNightMode {
@@ -164,6 +210,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> {
+                // If request is cancelled, the result arrays are empty.
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // Permission is granted. Continue the action or workflow
+                    // in your app.
+                } else {
+                    // Explain to the user that the feature is unavailable because
+                    // the features requires a permission that the user has denied.
+                    // At the same time, respect the user's decision. Don't link to
+                    // system settings in an effort to convince the user to change
+                    // their decision.
+                }
+                return
+            }
+
+            // Add other 'when' lines to check for other
+            // permissions this app might request.
+            else -> {
+                // Ignore all other requests.
+            }
+        }
+    }
+
     /**
      * Read the night mode from the DataStore.
      * Restore the night theme if in the DataStore is stored night.
@@ -198,7 +270,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun refreshUiNightMode(isNight: Boolean) {
         val color = if (isNight) {
-            ContextCompat.getColor(this, R.color.dark) to ContextCompat.getColor(this, R.color.black)
+            ContextCompat.getColor(this, R.color.dark) to ContextCompat.getColor(
+                this,
+                R.color.black
+            )
         } else {
             ContextCompat.getColor(this, R.color.day) to ContextCompat.getColor(this, R.color.white)
         }
@@ -210,11 +285,10 @@ class MainActivity : AppCompatActivity() {
         bottomBarVisualization?.setBackgroundColor(color.first)
         bottomBarSort?.setBackgroundColor(color.first)
         mainContainerRoot?.setBackgroundColor(color.second)
-
     }
 
     companion object {
         private const val TAG = "MainActivity"
-
+        private const val PERMISSION_REQUEST_CODE = 1234
     }
 }
