@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/sortNum"
+        android:icon="@drawable/num"
+        android:title="@string/num_sorting"
+        app:exb_color="@color/white"/>
+
+    <item
+        android:id="@+id/sortAZ"
+        android:title="@string/a_z_sorting"
+        android:icon="@drawable/az"
+        app:exb_color="@color/white" />
+</menu>
