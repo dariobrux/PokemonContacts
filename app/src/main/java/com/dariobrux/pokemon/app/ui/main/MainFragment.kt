@@ -17,8 +17,6 @@ import com.dariobrux.pokemon.app.other.extensions.toMainActivity
 import com.dariobrux.pokemon.app.ui.MainActivity
 import com.dariobrux.pokemon.app.ui.utils.GridSpaceItemDecoration
 import com.dariobrux.pokemon.app.ui.utils.LinearSpaceItemDecoration
-import com.jcodecraeer.xrecyclerview.ProgressStyle
-import com.jcodecraeer.xrecyclerview.XRecyclerView
 import com.tbruyelle.rxpermissions3.RxPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
@@ -39,7 +37,7 @@ import timber.log.Timber
  */
 
 @AndroidEntryPoint
-class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnItemSelectedListener {
+class MainFragment : Fragment(), MainAdapter.OnItemSelectedListener {
 
     /**
      * The ViewModel
@@ -81,9 +79,7 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
 
         // Set the RecyclerView with its LayoutManager, ItemDecorator, Adapter and callbacks.
         recycler?.let {
-            it.setLoadingMoreProgressStyle(ProgressStyle.Pacman)
             it.adapter = viewModel.adapter
-            it.setLoadingListener(this)
         }
 
         // At this point, I must observe the ViewModel to get the updated list
@@ -92,20 +88,6 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
         // I could incur in any bug.
         if (viewModel.combinedItemsList.isEmpty()) {
             getPokemonAndContactList()
-        }
-
-        // Observe the sort mode to refresh the list and the sort button.
-        requireActivity().toMainActivity()?.sorting?.observe(this.viewLifecycleOwner) { sorting ->
-            sorting ?: return@observe
-            when (sorting) {
-                MainActivity.Sorting.AZ -> {
-                    sortByName()
-                }
-                MainActivity.Sorting.NUM -> {
-                    sortById()
-                }
-            }
-            viewModel.adapter?.notifyDataSetChanged()
         }
 
         // Observe the visualization to transform the list to grid and vice versa.
@@ -136,24 +118,6 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
         }
     }
 
-    /**
-     * Sort the list by the pokemon id.
-     */
-    private fun sortById() {
-//        viewModel.combinedItemsList.sortBy { pokemon ->
-//            pokemon.url?.getIdFromUrl()
-//        }
-    }
-
-    /**
-     * Sort the list by the pokemon name.
-     */
-    private fun sortByName() {
-//        viewModel.combinedItemsList.sortBy { pokemon ->
-//            pokemon.name
-//        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         viewModel.resetOffset()
@@ -176,45 +140,8 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
             val items = viewModel.getCombinedContactsAndPokemon(contactList, it.data?.pokemonList ?: emptyList())
             viewModel.combinedItemsList.addAll(items)
 
-            // Sort by name
-            if (requireActivity().toMainActivity()?.sorting?.value == MainActivity.Sorting.AZ) {
-                sortByName()
-            } else {
-                sortById()
-            }
-
             // Refresh the adapter.
             viewModel.adapter?.notifyDataSetChanged()
-
-            // Tells the recyclerView that the items are loaded,
-            // to continue to use the loadMore functionality.
-            recycler?.loadMoreComplete()
-        }
-    }
-
-    /**
-     * Refresh the screen, reloading the pokemon list from the first value
-     */
-    private fun refreshPokemonList() {
-        viewModel.refreshPokemon()?.observe(this.viewLifecycleOwner) {
-            Timber.d("Refresh the pokemon list. Displayed ${it.data?.pokemonList ?: 0} pokemon.")
-
-            // Clear the list and reinsert everything retrieved from the ViewModel.
-            viewModel.combinedItemsList.clear()
-            viewModel.combinedItemsList.addAll(it.data?.pokemonList ?: emptyList())
-
-            // Sort by name
-            if (requireActivity().toMainActivity()?.sorting?.value == MainActivity.Sorting.AZ) {
-                sortByName()
-            } else {
-                sortById()
-            }
-
-            // Refresh the adapter.
-            viewModel.adapter?.notifyDataSetChanged()
-
-            // Tells the recyclerView that the items are refreshed.
-            recycler?.refreshComplete()
         }
     }
 
@@ -236,21 +163,5 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
         NavHostFragment.findNavController(this).navigate(R.id.action_mainFragment_to_infoFragment, Bundle().apply {
             putSerializable("contact", contact)
         })
-    }
-
-    /**
-     * Invoked when I pull to refresh.
-     * It refresh the list.
-     */
-    override fun onRefresh() {
-        refreshPokemonList()
-    }
-
-    /**
-     * Invoked when the list reach the limit scrollable value.
-     * It invoke the viewModel to retrieve other pokemon.
-     */
-    override fun onLoadMore() {
-        getPokemonAndContactList()
     }
 }

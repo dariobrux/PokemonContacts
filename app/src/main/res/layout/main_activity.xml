@@ -63,26 +63,8 @@
             app:exb_items="@menu/bottom_bar_visualization"
             app:layout_behavior="github.com.st235.lib_expandablebottombar.behavior.ExpandableBottomBarScrollableBehavior"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/bottomBarSort"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <github.com.st235.lib_expandablebottombar.ExpandableBottomBar
-            android:id="@+id/bottomBarSort"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            app:exb_item_horizontal_padding="@dimen/regular_radius"
-            app:exb_backgroundColor="@color/primary"
-            app:exb_elevation="@dimen/regular_space"
-            app:exb_itemInactiveColor="@color/white"
-            app:exb_itemStyle="normal"
-            app:exb_items="@menu/bottom_bar_sorting"
-            app:layout_behavior="github.com.st235.lib_expandablebottombar.behavior.ExpandableBottomBarScrollableBehavior"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/bottomBarVisualization"/>
-
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

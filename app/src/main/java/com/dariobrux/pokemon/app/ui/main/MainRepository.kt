@@ -36,7 +36,7 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
     /**
      * Max number of items to download in once.
      */
-    private var limit = 100
+    private var limit = 1050
 
     /**
      * Reset the offset to start from the first pokemon.
@@ -115,16 +115,7 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
      * @return the list of contacts from an offset, showing always a tot of items.
      */
     fun getContactList(): List<ContactData> {
-        val contactList = Contacts.getQuery().find().toList()
-        if (offset >= contactList.size) {
-            return emptyList()
-        }
-        val limit = if ((this.limit + offset) >= contactList.size) {
-            contactList.size -1
-        } else {
-            offset + this.limit
-        }
-        return contactList.subList(offset, limit).map {
+        return Contacts.getQuery().find().toList()?.map {
             it.toContactData()
         }
     }

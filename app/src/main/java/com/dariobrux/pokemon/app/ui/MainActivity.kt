@@ -47,13 +47,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var visualization: MutableLiveData<Visualization>
 
     /**
-     * The list sorting. This is a public field
-     * because it must be visible from the MainFragment.
-     */
-    @Inject
-    lateinit var sorting: MutableLiveData<Sorting>
-
-    /**
      * Current theme
      */
     private var theme = Theme.UNDEFINED
@@ -153,18 +146,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        // Add the bottom bar item listener to change the items visualization.
-        bottomBarSort?.onItemSelectedListener = { _, menuItem ->
-            when (menuItem.itemId) {
-                R.id.sortAZ -> {
-                    sorting.value = Sorting.AZ
-                }
-                R.id.sortNum -> {
-                    sorting.value = Sorting.NUM
-                }
-            }
-        }
     }
 
     /**
@@ -211,7 +192,6 @@ class MainActivity : AppCompatActivity() {
         window.navigationBarColor = color.first
         toolbar?.setBackgroundColor(color.first)
         bottomBarVisualization?.setBackgroundColor(color.first)
-        bottomBarSort?.setBackgroundColor(color.first)
         mainContainerRoot?.setBackgroundColor(color.second)
     }
 

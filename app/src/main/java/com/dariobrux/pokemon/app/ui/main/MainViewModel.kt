@@ -7,6 +7,7 @@ import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.Resource
+import java.util.*
 
 
 /**
@@ -55,12 +56,20 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      * @param pokemonList the list of pokemon.
      */
     fun getCombinedContactsAndPokemon(contactList: List<ContactData>, pokemonList: List<Pokemon>): List<Any> {
-        return pokemonList.zip(contactList).flatMap {
-            listOf(it.first, it.second)
-        } + (if (pokemonList.size > contactList.size) {
-            pokemonList.drop(contactList.size)
-        } else {
-            contactList.drop(pokemonList.size)
-        })
+//        return pokemonList.zip(contactList).flatMap {
+//            listOf(it.first, it.second)
+//        } + (if (pokemonList.size > contactList.size) {
+//            pokemonList.drop(contactList.size)
+//        } else {
+//            contactList.drop(pokemonList.size)
+//        })
+        return (pokemonList + contactList).toList<Any>().sortedBy {
+            when (it) {
+                is Pokemon -> it.name.toLowerCase(Locale.getDefault())
+                is ContactData -> it.displayName?.toLowerCase(Locale.getDefault()) ?: ""
+                else -> ""
+            }
+        }
+
     }
 }
