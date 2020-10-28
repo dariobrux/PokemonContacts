@@ -3,6 +3,7 @@ package com.dariobrux.pokemon.app.ui.main
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +25,6 @@ import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.extensions.animateCardBackgroundColor
 import com.dariobrux.pokemon.app.other.extensions.getDominantColor
 import timber.log.Timber
-import java.io.File
 import java.util.*
 
 
@@ -125,22 +125,7 @@ class MainAdapter(private val context: Context, private val items: List<Any>, pr
         holder.card.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
 
         contact.picture?.let {
-            Glide.with(context.applicationContext).asBitmap().load(File(it)).diskCacheStrategy(DiskCacheStrategy.ALL).listener(object : RequestListener<Bitmap> {
-                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-                    Timber.e("Image loading failed")
-                    return true
-                }
-
-                // When the bitmap is loaded, I get the dominant color of the image
-                // and use it as background color.
-                override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                    resource ?: return true
-                    resource.getDominantColor(ContextCompat.getColor(context, R.color.white)) { color ->
-                        holder.card.animateCardBackgroundColor(Color.parseColor("#000000"), color)
-                    }
-                    return false
-                }
-            }).into(holder.img)
+            Glide.with(context.applicationContext).asBitmap().fitCenter().load(Uri.parse(it)).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.img)
         }
 
         holder.txtName.text = contact.phoneNumbers?.firstOrNull() ?: ""
