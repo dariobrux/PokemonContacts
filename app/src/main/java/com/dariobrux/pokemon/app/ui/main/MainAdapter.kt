@@ -19,12 +19,12 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.dariobrux.pokemon.app.R
-import com.dariobrux.pokemon.app.other.extensions.getDominantColor
-import com.dariobrux.pokemon.app.other.extensions.getIdFromUrl
 import com.dariobrux.pokemon.app.data.models.Pokemon
-import com.dariobrux.pokemon.app.other.extensions.animateBackgroundColor
 import com.dariobrux.pokemon.app.other.extensions.animateCardBackgroundColor
+import com.dariobrux.pokemon.app.other.extensions.getDominantColor
+import com.github.tamir7.contacts.Contact
 import timber.log.Timber
+import java.io.File
 import java.util.*
 
 
@@ -35,18 +35,57 @@ import java.util.*
  * This is the adapter applied to the RecyclerView in the MainFragment.
  *
  */
-class MainAdapter(private val context: Context, private val items: List<Pokemon>, private val listener: OnPokemonSelectedListener?) : RecyclerView.Adapter<MainAdapter.PostViewHolder>() {
+class MainAdapter(private val context: Context, private val items: List<Any>, private val listener: OnItemSelectedListener?) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
 
-    interface OnPokemonSelectedListener {
+    interface OnItemSelectedListener {
+
+        /**
+         * Invoke when a pokemon is selected.
+         * @param pokemon the pokemon selected.
+         */
         fun onPokemonSelected(pokemon: Pokemon)
+
+        /**
+         * Invoke when a contact is selected.
+         * @param contact the contact selected.
+         */
+        fun onContactSelected(contact: Contact)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        return PostViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_pokemon, parent, false))
+    override fun getItemViewType(position: Int): Int {
+        if (items[position] is Pokemon) {
+            return POKEMON
+        } else if (items[position] is Contact) {
+            return CONTACT
+        }
+        return -1
     }
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val pokemon = items[position]
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.row_adapter, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        when (holder.itemViewType) {
+            POKEMON -> {
+                configurePokemon(holder, items[position] as Pokemon)
+            }
+            else -> {
+                configureContact(holder, items[position] as Contact)
+            }
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return items.size
+    }
+
+    /**
+     * Set the pokemon layout showing the picture, the name and the id.
+     * @param holder the ViewHolder.
+     * @param pokemon the item in the list at current position.
+     */
+    private fun configurePokemon(holder: ViewHolder, pokemon: Pokemon) {
 
         holder.card.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
 
@@ -72,18 +111,55 @@ class MainAdapter(private val context: Context, private val items: List<Pokemon>
         holder.txtNumber.text = pokemon.num?.toString() ?: ""
 
         holder.card.setOnClickListener {
-            listener?.onPokemonSelected(items[position])
+            listener?.onPokemonSelected(pokemon)
         }
     }
 
-    override fun getItemCount(): Int {
-        return items.size
+    /**
+     * Set the contact layout showing the image, the phone number and the display name.
+     * @param holder the ViewHolder.
+     * @param contact the item in the list at current position.
+     */
+    private fun configureContact(holder: ViewHolder, contact: Contact) {
+
+        holder.card.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
+
+        contact.photoUri?.let {
+            Glide.with(context.applicationContext).asBitmap().load(File(it)).diskCacheStrategy(DiskCacheStrategy.ALL).listener(object : RequestListener<Bitmap> {
+                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                    Timber.e("Image loading failed")
+                    return true
+                }
+
+                // When the bitmap is loaded, I get the dominant color of the image
+                // and use it as background color.
+                override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    resource ?: return true
+                    resource.getDominantColor(ContextCompat.getColor(context, R.color.white)) { color ->
+                        holder.card.animateCardBackgroundColor(Color.parseColor("#000000"), color)
+                    }
+                    return false
+                }
+            }).into(holder.img)
+        }
+
+        holder.txtName.text = contact.phoneNumbers.firstOrNull()?.number ?: ""
+        holder.txtNumber.text = contact.displayName?.toString() ?: ""
+
+        holder.card.setOnClickListener {
+            listener?.onContactSelected(contact)
+        }
     }
 
-    class PostViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
         var card: CardView = itemView.findViewById(R.id.card)
         var img: ImageView = itemView.findViewById(R.id.img)
         var txtName: TextView = itemView.findViewById(R.id.txtName)
         var txtNumber: TextView = itemView.findViewById(R.id.txtNumber)
+    }
+
+    companion object {
+        private const val POKEMON = 0
+        private const val CONTACT = 1
     }
 }

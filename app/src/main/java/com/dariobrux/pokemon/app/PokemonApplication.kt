@@ -1,6 +1,7 @@
 package com.dariobrux.pokemon.app
 
 import android.app.Application
+import com.github.tamir7.contacts.Contacts
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -15,5 +16,6 @@ class PokemonApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Contacts.initialize(this)
     }
 }

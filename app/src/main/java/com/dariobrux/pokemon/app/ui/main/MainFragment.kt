@@ -1,5 +1,6 @@
 package com.dariobrux.pokemon.app.ui.main
 
+import android.Manifest
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,13 +12,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dariobrux.pokemon.app.R
 import com.dariobrux.pokemon.app.data.models.Pokemon
-import com.dariobrux.pokemon.app.other.extensions.getIdFromUrl
 import com.dariobrux.pokemon.app.other.extensions.toMainActivity
 import com.dariobrux.pokemon.app.ui.MainActivity
 import com.dariobrux.pokemon.app.ui.utils.GridSpaceItemDecoration
 import com.dariobrux.pokemon.app.ui.utils.LinearSpaceItemDecoration
+import com.github.tamir7.contacts.Contact
 import com.jcodecraeer.xrecyclerview.ProgressStyle
 import com.jcodecraeer.xrecyclerview.XRecyclerView
+import com.tbruyelle.rxpermissions3.RxPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
 import timber.log.Timber
@@ -37,17 +39,19 @@ import timber.log.Timber
  */
 
 @AndroidEntryPoint
-class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPokemonSelectedListener {
+class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnItemSelectedListener {
 
     /**
      * The ViewModel
      */
     private val viewModel: MainViewModel by viewModels()
 
+    private var isContactPermissionGranted = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (viewModel.adapter == null) {
-            viewModel.adapter = MainAdapter(requireContext(), viewModel.pokemonList, this)
+            viewModel.adapter = MainAdapter(requireContext(), viewModel.combinedItemsList, this)
         }
     }
 
@@ -56,6 +60,24 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        RxPermissions(this)
+            .request(Manifest.permission.READ_CONTACTS)
+            .subscribe { granted ->
+                isContactPermissionGranted = granted
+                // The permission is granted. This is always true for Android pre-M
+                if (granted) {
+                    initFragmentViews()
+                } else {
+                    // The permission is denied
+                    initFragmentViews()
+                }
+            }
+    }
+
+    /**
+     * Initialize the views of this fragment.
+     */
+    private fun initFragmentViews() {
 
         // Set the RecyclerView with its LayoutManager, ItemDecorator, Adapter and callbacks.
         recycler?.let {
@@ -68,7 +90,7 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
         // of pokemon only if the current list is empty. I let do in this way
         // because, when I change the theme, the application is refreshed, and
         // I could incur in any bug.
-        if (viewModel.pokemonList.isEmpty()) {
+        if (viewModel.combinedItemsList.isEmpty()) {
             getPokemonAndContactList()
         }
 
@@ -118,18 +140,18 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
      * Sort the list by the pokemon id.
      */
     private fun sortById() {
-        viewModel.pokemonList.sortBy { pokemon ->
-            pokemon.url?.getIdFromUrl()
-        }
+//        viewModel.combinedItemsList.sortBy { pokemon ->
+//            pokemon.url?.getIdFromUrl()
+//        }
     }
 
     /**
      * Sort the list by the pokemon name.
      */
     private fun sortByName() {
-        viewModel.pokemonList.sortBy { pokemon ->
-            pokemon.name
-        }
+//        viewModel.combinedItemsList.sortBy { pokemon ->
+//            pokemon.name
+//        }
     }
 
     override fun onDestroy() {
@@ -141,9 +163,18 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
      * Observe the ViewModel to get the list of the pokemon to show.
      */
     private fun getPokemonAndContactList() {
-        viewModel.getPokemonAndContactList()?.observe(this.viewLifecycleOwner) {
+
+        // Get the contact list
+        val contactList = if (isContactPermissionGranted) {
+            viewModel.getContactList()
+        } else {
+            emptyList()
+        }
+
+        viewModel.getPokemonList()?.observe(this.viewLifecycleOwner) {
             Timber.d("Observer the dataInfo object. It contains ${it.data?.pokemonList?.size ?: 0} pokemon")
-            viewModel.pokemonList.addAll(it.data?.pokemonList ?: emptyList())
+            val items = viewModel.getCombinedContactsAndPokemon(contactList, it.data?.pokemonList ?: emptyList())
+            viewModel.combinedItemsList.addAll(items)
 
             // Sort by name
             if (requireActivity().toMainActivity()?.sorting?.value == MainActivity.Sorting.AZ) {
@@ -169,8 +200,8 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
             Timber.d("Refresh the pokemon list. Displayed ${it.data?.pokemonList ?: 0} pokemon.")
 
             // Clear the list and reinsert everything retrieved from the ViewModel.
-            viewModel.pokemonList.clear()
-            viewModel.pokemonList.addAll(it.data?.pokemonList ?: emptyList())
+            viewModel.combinedItemsList.clear()
+            viewModel.combinedItemsList.addAll(it.data?.pokemonList ?: emptyList())
 
             // Sort by name
             if (requireActivity().toMainActivity()?.sorting?.value == MainActivity.Sorting.AZ) {
@@ -188,14 +219,21 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnPo
     }
 
     /**
-     * Invoked when a pokemon in the list is tapped.
-     * It opens the screen with all the info.
-     * @param pokemon the pokemon tapped.
+     * Invoke when a pokemon is selected.
+     * @param pokemon the pokemon selected.
      */
     override fun onPokemonSelected(pokemon: Pokemon) {
         NavHostFragment.findNavController(this).navigate(R.id.action_mainFragment_to_infoFragment, Bundle().apply {
             putSerializable("pokemon", pokemon)
         })
+    }
+
+    /**
+     * Invoke when a contact is selected.
+     * @param contact the contact selected.
+     */
+    override fun onContactSelected(contact: Contact) {
+        // TODO("Not yet implemented")
     }
 
     /**

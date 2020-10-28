@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.Resource
+import com.github.tamir7.contacts.Contact
+
 
 /**
  *
@@ -14,7 +16,7 @@ import com.dariobrux.pokemon.app.other.Resource
  */
 class MainViewModel @ViewModelInject constructor(private val mainRepository: MainRepository) : ViewModel() {
 
-    val pokemonList = mutableListOf<Pokemon>()
+    var combinedItemsList = mutableListOf<Any>()
 
     /**
      * The Adapter to show the items in list.
@@ -24,8 +26,15 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
     /**
      * @return the pokemon list.
      */
-    fun getPokemonAndContactList(): LiveData<Resource<DataInfo>>? {
+    fun getPokemonList(): LiveData<Resource<DataInfo>>? {
         return mainRepository.getPokemon()
+    }
+
+    /**
+     * Get the list of the contacts.
+     */
+    fun getContactList(): List<Contact> {
+        return mainRepository.getContactList()
     }
 
     /**
@@ -33,10 +42,19 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      */
     fun refreshPokemon(): LiveData<Resource<DataInfo>>? {
         resetOffset()
-        return getPokemonAndContactList()
+        return getPokemonList()
     }
 
     fun resetOffset() {
         mainRepository.resetOffset()
+    }
+
+    /**
+     * This function combine every item of the pokemon list with every item of the contacts list.
+     * @param contactList the list of contacts.
+     * @param pokemonList the list of pokemon.
+     */
+    fun getCombinedContactsAndPokemon(contactList: List<Contact>, pokemonList: List<Pokemon>): List<Any> {
+        return pokemonList.zip(contactList) { a, b -> listOf(a, b) }.flatten().toMutableList()
     }
 }
