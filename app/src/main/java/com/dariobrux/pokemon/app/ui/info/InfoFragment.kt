@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
@@ -22,7 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.info_fragment.*
 import kotlinx.android.synthetic.main.main_activity.*
 import timber.log.Timber
-import java.io.File
 import java.util.*
 
 /**
@@ -78,8 +78,7 @@ class InfoFragment : Fragment() {
         if (contact!!.picture == null || contact!!.picture?.isEmpty() == true) {
             thumb?.toGone()
         } else {
-            val photoUri: Uri = Uri.fromFile(File(contact!!.picture!!))
-            Glide.with(requireContext()).load(photoUri).into(thumb)
+            Glide.with(requireContext()).asBitmap().fitCenter().load(Uri.parse(contact!!.picture)).diskCacheStrategy(DiskCacheStrategy.ALL).into(thumb)
             card?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(200)?.start()
         }
         txtName?.text = contact!!.displayName?.capitalize(Locale.getDefault()) ?: ""
