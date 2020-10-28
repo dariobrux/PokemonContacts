@@ -11,12 +11,12 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dariobrux.pokemon.app.R
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.extensions.toMainActivity
 import com.dariobrux.pokemon.app.ui.MainActivity
 import com.dariobrux.pokemon.app.ui.utils.GridSpaceItemDecoration
 import com.dariobrux.pokemon.app.ui.utils.LinearSpaceItemDecoration
-import com.github.tamir7.contacts.Contact
 import com.jcodecraeer.xrecyclerview.ProgressStyle
 import com.jcodecraeer.xrecyclerview.XRecyclerView
 import com.tbruyelle.rxpermissions3.RxPermissions
@@ -229,11 +229,13 @@ class MainFragment : Fragment(), XRecyclerView.LoadingListener, MainAdapter.OnIt
     }
 
     /**
-     * Invoke when a contact is selected.
+     * Invoke when a contact is selected. The contact received will be converted to a ContactData.
      * @param contact the contact selected.
      */
-    override fun onContactSelected(contact: Contact) {
-        // TODO("Not yet implemented")
+    override fun onContactSelected(contact: ContactData) {
+        NavHostFragment.findNavController(this).navigate(R.id.action_mainFragment_to_infoFragment, Bundle().apply {
+            putSerializable("contact", contact)
+        })
     }
 
     /**

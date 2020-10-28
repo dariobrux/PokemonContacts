@@ -35,3 +35,10 @@ fun CardView.animateCardBackgroundColor(startColor: Int, toColor: Int) {
     }
     anim.start()
 }
+
+/**
+ * Set the visibility to GONE
+ */
+fun View.toGone() {
+    this.visibility = View.GONE
+}

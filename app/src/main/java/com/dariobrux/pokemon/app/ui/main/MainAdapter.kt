@@ -19,10 +19,10 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.dariobrux.pokemon.app.R
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.extensions.animateCardBackgroundColor
 import com.dariobrux.pokemon.app.other.extensions.getDominantColor
-import com.github.tamir7.contacts.Contact
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -49,13 +49,13 @@ class MainAdapter(private val context: Context, private val items: List<Any>, pr
          * Invoke when a contact is selected.
          * @param contact the contact selected.
          */
-        fun onContactSelected(contact: Contact)
+        fun onContactSelected(contact: ContactData)
     }
 
     override fun getItemViewType(position: Int): Int {
         if (items[position] is Pokemon) {
             return POKEMON
-        } else if (items[position] is Contact) {
+        } else if (items[position] is ContactData) {
             return CONTACT
         }
         return -1
@@ -71,7 +71,7 @@ class MainAdapter(private val context: Context, private val items: List<Any>, pr
                 configurePokemon(holder, items[position] as Pokemon)
             }
             else -> {
-                configureContact(holder, items[position] as Contact)
+                configureContact(holder, items[position] as ContactData)
             }
         }
     }
@@ -120,11 +120,11 @@ class MainAdapter(private val context: Context, private val items: List<Any>, pr
      * @param holder the ViewHolder.
      * @param contact the item in the list at current position.
      */
-    private fun configureContact(holder: ViewHolder, contact: Contact) {
+    private fun configureContact(holder: ViewHolder, contact: ContactData) {
 
         holder.card.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
 
-        contact.photoUri?.let {
+        contact.picture?.let {
             Glide.with(context.applicationContext).asBitmap().load(File(it)).diskCacheStrategy(DiskCacheStrategy.ALL).listener(object : RequestListener<Bitmap> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
                     Timber.e("Image loading failed")
@@ -143,8 +143,8 @@ class MainAdapter(private val context: Context, private val items: List<Any>, pr
             }).into(holder.img)
         }
 
-        holder.txtName.text = contact.phoneNumbers.firstOrNull()?.number ?: ""
-        holder.txtNumber.text = contact.displayName?.toString() ?: ""
+        holder.txtName.text = contact.phoneNumbers?.firstOrNull() ?: ""
+        holder.txtNumber.text = contact.displayName ?: ""
 
         holder.card.setOnClickListener {
             listener?.onContactSelected(contact)

@@ -3,12 +3,13 @@ package com.dariobrux.pokemon.app.ui.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.dariobrux.pokemon.app.data.local.PokemonDao
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.remote.PokemonApiHelper
 import com.dariobrux.pokemon.app.other.Constants
 import com.dariobrux.pokemon.app.other.Resource
 import com.dariobrux.pokemon.app.other.extensions.getIdFromUrl
-import com.github.tamir7.contacts.Contact
+import com.dariobrux.pokemon.app.other.extensions.toContactData
 import com.github.tamir7.contacts.Contacts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +114,18 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
     /**
      * @return the list of contacts from an offset, showing always a tot of items.
      */
-    fun getContactList(): List<Contact> {
-        return Contacts.getQuery().find().toList().subList(offset, offset + limit)
+    fun getContactList(): List<ContactData> {
+        val contactList = Contacts.getQuery().find().toList()
+        if (offset >= contactList.size) {
+            return emptyList()
+        }
+        val limit = if ((this.limit + offset) >= contactList.size) {
+            contactList.size -1
+        } else {
+            offset + this.limit
+        }
+        return contactList.subList(offset, limit).map {
+            it.toContactData()
+        }
     }
 }

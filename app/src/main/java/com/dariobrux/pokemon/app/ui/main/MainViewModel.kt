@@ -3,10 +3,10 @@ package com.dariobrux.pokemon.app.ui.main
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.Resource
-import com.github.tamir7.contacts.Contact
 
 
 /**
@@ -33,7 +33,7 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
     /**
      * Get the list of the contacts.
      */
-    fun getContactList(): List<Contact> {
+    fun getContactList(): List<ContactData> {
         return mainRepository.getContactList()
     }
 
@@ -54,7 +54,13 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      * @param contactList the list of contacts.
      * @param pokemonList the list of pokemon.
      */
-    fun getCombinedContactsAndPokemon(contactList: List<Contact>, pokemonList: List<Pokemon>): List<Any> {
-        return pokemonList.zip(contactList) { a, b -> listOf(a, b) }.flatten().toMutableList()
+    fun getCombinedContactsAndPokemon(contactList: List<ContactData>, pokemonList: List<Pokemon>): List<Any> {
+        return pokemonList.zip(contactList).flatMap {
+            listOf(it.first, it.second)
+        } + (if (pokemonList.size > contactList.size) {
+            pokemonList.drop(contactList.size)
+        } else {
+            contactList.drop(pokemonList.size)
+        })
     }
 }
