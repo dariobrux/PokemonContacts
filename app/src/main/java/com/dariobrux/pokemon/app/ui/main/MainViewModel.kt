@@ -55,14 +55,7 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      * @param contactList the list of contacts.
      * @param pokemonList the list of pokemon.
      */
-    fun getCombinedContactsAndPokemon(contactList: List<ContactData>, pokemonList: List<Pokemon>): List<Any> {
-//        return pokemonList.zip(contactList).flatMap {
-//            listOf(it.first, it.second)
-//        } + (if (pokemonList.size > contactList.size) {
-//            pokemonList.drop(contactList.size)
-//        } else {
-//            contactList.drop(pokemonList.size)
-//        })
+    fun getSortedList(contactList: List<ContactData>, pokemonList: List<Pokemon>): List<Any> {
         return (pokemonList + contactList).toList<Any>().sortedBy {
             when (it) {
                 is Pokemon -> it.name.toLowerCase(Locale.getDefault())
@@ -70,6 +63,5 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
                 else -> ""
             }
         }
-
     }
 }

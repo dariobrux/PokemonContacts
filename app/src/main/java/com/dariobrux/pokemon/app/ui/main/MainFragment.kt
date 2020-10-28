@@ -137,7 +137,7 @@ class MainFragment : Fragment(), MainAdapter.OnItemSelectedListener {
 
         viewModel.getPokemonList()?.observe(this.viewLifecycleOwner) {
             Timber.d("Observer the dataInfo object. It contains ${it.data?.pokemonList?.size ?: 0} pokemon")
-            val items = viewModel.getCombinedContactsAndPokemon(contactList, it.data?.pokemonList ?: emptyList())
+            val items = viewModel.getSortedList(contactList, it.data?.pokemonList ?: emptyList())
             viewModel.combinedItemsList.addAll(items)
 
             // Refresh the adapter.
