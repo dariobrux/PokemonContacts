@@ -115,8 +115,10 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
      * @return the list of contacts from an offset, showing always a tot of items.
      */
     fun getContactList(): List<ContactData> {
-        return Contacts.getQuery().find().toList()?.map {
+        return Contacts.getQuery().find().toList().map {
             it.toContactData()
+        }.filter {
+            !it.displayName.isNullOrEmpty() && !it.phoneNumbers.isNullOrEmpty()
         }
     }
 }
