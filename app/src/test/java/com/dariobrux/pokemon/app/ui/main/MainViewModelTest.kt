@@ -1,6 +1,7 @@
 package com.dariobrux.pokemon.app.ui.main
 
 import androidx.lifecycle.MutableLiveData
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.Resource
@@ -30,15 +31,39 @@ class MainViewModelTest : TestCase() {
     }
 
     @Test
-    fun testGetExistingData() {
+    fun testNotExistingPokemonList() {
+        Mockito.`when`(repository.getPokemon()).thenReturn(null)
+        assertTrue(viewModel.getPokemonList() == null)
+    }
+
+    @Test
+    fun testExistingPokemonList() {
         Mockito.`when`(repository.getPokemon()).thenReturn(MutableLiveData())
-        assertTrue(viewModel.getPokemon() != null)
+        assertTrue(viewModel.getPokemonList() != null)
+    }
+
+    @Test
+    fun testEmptyContactList() {
+        Mockito.`when`(repository.getContactList()).thenReturn(listOf())
+        assertTrue(viewModel.getContactList().isEmpty())
+    }
+
+    @Test
+    fun testNotEmptyContactList() {
+        Mockito.`when`(repository.getContactList()).thenReturn(listOf(ContactData(), ContactData()))
+        assertTrue(viewModel.getContactList().isNotEmpty())
+    }
+
+    @Test
+    fun testContactListWith3Contacts() {
+        Mockito.`when`(repository.getContactList()).thenReturn(listOf(ContactData(), ContactData(), ContactData()))
+        assertEquals(viewModel.getContactList().size, 3)
     }
 
     @Test
     fun testGetNotExistingData() {
         Mockito.`when`(repository.getPokemon()).thenReturn(null)
-        assertTrue(viewModel.getPokemon() == null)
+        assertTrue(viewModel.getPokemonList() == null)
     }
 
     @Test

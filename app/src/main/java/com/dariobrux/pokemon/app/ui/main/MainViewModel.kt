@@ -3,9 +3,12 @@ package com.dariobrux.pokemon.app.ui.main
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
 import com.dariobrux.pokemon.app.data.models.Pokemon
 import com.dariobrux.pokemon.app.other.Resource
+import java.util.*
+
 
 /**
  *
@@ -14,7 +17,7 @@ import com.dariobrux.pokemon.app.other.Resource
  */
 class MainViewModel @ViewModelInject constructor(private val mainRepository: MainRepository) : ViewModel() {
 
-    val pokemonList = mutableListOf<Pokemon>()
+    var combinedItemsList = mutableListOf<Any>()
 
     /**
      * The Adapter to show the items in list.
@@ -24,8 +27,15 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
     /**
      * @return the pokemon list.
      */
-    fun getPokemon(): LiveData<Resource<DataInfo>>? {
+    fun getPokemonList(): LiveData<Resource<DataInfo>>? {
         return mainRepository.getPokemon()
+    }
+
+    /**
+     * Get the list of the contacts.
+     */
+    fun getContactList(): List<ContactData> {
+        return mainRepository.getContactList()
     }
 
     /**
@@ -33,10 +43,25 @@ class MainViewModel @ViewModelInject constructor(private val mainRepository: Mai
      */
     fun refreshPokemon(): LiveData<Resource<DataInfo>>? {
         resetOffset()
-        return getPokemon()
+        return getPokemonList()
     }
 
     fun resetOffset() {
         mainRepository.resetOffset()
+    }
+
+    /**
+     * This function combine every item of the pokemon list with every item of the contacts list.
+     * @param contactList the list of contacts.
+     * @param pokemonList the list of pokemon.
+     */
+    fun getSortedList(contactList: List<ContactData>, pokemonList: List<Pokemon>): List<Any> {
+        return (pokemonList + contactList).toList<Any>().sortedBy {
+            when (it) {
+                is Pokemon -> it.name.toLowerCase(Locale.getDefault())
+                is ContactData -> it.displayName?.toLowerCase(Locale.getDefault()) ?: ""
+                else -> ""
+            }
+        }
     }
 }

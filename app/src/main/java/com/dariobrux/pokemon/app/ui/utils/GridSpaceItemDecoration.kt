@@ -4,7 +4,6 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
-import com.dariobrux.pokemon.app.other.extensions.dpToPx
 
 /**
  *
@@ -17,7 +16,7 @@ class GridSpaceItemDecoration(private val space: Int) : ItemDecoration() {
         parent.adapter?.let {
             val position = parent.getChildAdapterPosition(view)
 
-            if (position % 2 != 0) {
+            if (position % 2 == 0) {
                 outRect.right = space
             }
 

@@ -2,13 +2,15 @@ package com.dariobrux.pokemon.app.ui.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.dariobrux.pokemon.app.R
-import com.dariobrux.pokemon.app.data.remote.PokemonApiHelper
 import com.dariobrux.pokemon.app.data.local.PokemonDao
+import com.dariobrux.pokemon.app.data.models.ContactData
 import com.dariobrux.pokemon.app.data.models.DataInfo
+import com.dariobrux.pokemon.app.data.remote.PokemonApiHelper
 import com.dariobrux.pokemon.app.other.Constants
 import com.dariobrux.pokemon.app.other.Resource
 import com.dariobrux.pokemon.app.other.extensions.getIdFromUrl
+import com.dariobrux.pokemon.app.other.extensions.toContactData
+import com.github.tamir7.contacts.Contacts
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +36,7 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
     /**
      * Max number of items to download in once.
      */
-    private var limit = 100
+    private var limit = 1050
 
     /**
      * Reset the offset to start from the first pokemon.
@@ -107,5 +109,16 @@ class MainRepository @Inject constructor(private val pokemonApiHelper: PokemonAp
         }
 
         return mutableLiveData
+    }
+
+    /**
+     * @return the list of contacts from an offset, showing always a tot of items.
+     */
+    fun getContactList(): List<ContactData> {
+        return Contacts.getQuery().find().toList().map {
+            it.toContactData()
+        }.filter {
+            !it.displayName.isNullOrEmpty() && !it.phoneNumbers.isNullOrEmpty()
+        }
     }
 }

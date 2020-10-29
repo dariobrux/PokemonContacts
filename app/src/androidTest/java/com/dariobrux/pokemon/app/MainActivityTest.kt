@@ -5,10 +5,13 @@ import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.dariobrux.pokemon.app.ui.MainActivity
+import com.dariobrux.pokemon.app.ui.main.MainAdapter
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
@@ -63,10 +66,10 @@ class MainActivityTest {
     }
 
     @Test
-    fun testFirstPokemonClicked() {
+    fun testFirstCardClicked() {
         scenario = launchActivity()
         Thread.sleep(2000)
-        onView(withText("Bulbasaur")).perform(click())
+        onView(withId(R.id.recycler)).perform(RecyclerViewActions.actionOnItemAtPosition<MainAdapter.ViewHolder>(0, click()));
     }
 
 }

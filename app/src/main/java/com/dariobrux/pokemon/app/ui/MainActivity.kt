@@ -1,8 +1,10 @@
 package com.dariobrux.pokemon.app.ui
 
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.datastore.DataStore
@@ -43,13 +45,6 @@ class MainActivity : AppCompatActivity() {
      */
     @Inject
     lateinit var visualization: MutableLiveData<Visualization>
-
-    /**
-     * The list sorting. This is a public field
-     * because it must be visible from the MainFragment.
-     */
-    @Inject
-    lateinit var sorting: MutableLiveData<Sorting>
 
     /**
      * Current theme
@@ -101,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         NUM
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -150,18 +146,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        // Add the bottom bar item listener to change the items visualization.
-        bottomBarSort?.onItemSelectedListener = { _, menuItem ->
-            when (menuItem.itemId) {
-                R.id.sortAZ -> {
-                    sorting.value = Sorting.AZ
-                }
-                R.id.sortNum -> {
-                    sorting.value = Sorting.NUM
-                }
-            }
-        }
     }
 
     /**
@@ -208,13 +192,10 @@ class MainActivity : AppCompatActivity() {
         window.navigationBarColor = color.first
         toolbar?.setBackgroundColor(color.first)
         bottomBarVisualization?.setBackgroundColor(color.first)
-        bottomBarSort?.setBackgroundColor(color.first)
         mainContainerRoot?.setBackgroundColor(color.second)
-
     }
 
     companion object {
         private const val TAG = "MainActivity"
-
     }
 }
