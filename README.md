@@ -1,4 +1,4 @@
-# All the modern Android practices for a super small Pokémon app.
+# All the modern Android practices for a super small Pokémon app mixed with Contacts.
 
 ## Kotlin Coroutines + MVVM with Repository Pattern + LiveData + Hilt + Room + Retrofit + DataStore + Navigation Component + Unit Test + Integration Test.
 
