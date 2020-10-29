@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pokémon</string>
+    <string name="app_name">Pokémon Contacts</string>
     <string name="base_experience">Base experience: %d</string>
     <string name="height">Height: %d</string>
     <string name="weight">Weight: %d</string>
