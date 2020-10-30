@@ -4,8 +4,14 @@ import com.dariobrux.pokemon.app.ui.MainActivity
 import com.dariobrux.pokemon.app.ui.main.MainFragment
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+
+@Config(manifest= Config.NONE)
+@RunWith(RobolectricTestRunner::class)
 class ActivityTest : TestCase() {
 
     @Test
